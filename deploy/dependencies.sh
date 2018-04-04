@@ -19,4 +19,5 @@ sudo apt-add-repository -y ppa:ansible/ansible
 sudo apt-get update
 sudo apt-get install -y ansible
 
+sudo ansible-playbook -i "$INVENTORY" plays/dir_create.yml
 sudo ansible-playbook -i "$INVENTORY" plays/dependencies.yml

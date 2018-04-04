@@ -1,4 +1,5 @@
-#for the moment, the dependencies.yml is being run from dependencies.sh
+#for the moment, the dir_create.yml and dependencies.yml are being run from dependencies.sh
+#- import_playbook: plays/dir_create.yml
 #- import_playbook: plays/dependencies.yml
 - import_playbook: plays/mysqldb.yml
 - import_playbook: plays/gitlab.yml
