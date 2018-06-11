@@ -134,7 +134,7 @@ describe('Verifies', () => {
     request.post(`${lbUrl}/addNode`, { json: testNode }, (error,response) => {
       (error === null).should.be.true();
       response.body.should.equal(true);
-      //sinon.assert.calledThrice(logStub);
+      sinon.assert.calledThrice(logStub);
       loadBalancer.node_queue = loadBalancer.__get__('node_queue');
       loadBalancer.node_queue.should.be.an('array').that.deep.includes(testNode);
       restoreConsole();
@@ -143,18 +143,18 @@ describe('Verifies', () => {
   });
 
   it('when already added EN sends addNode request', (done) => {
-    //stubConsole();
+    stubConsole();
     let testNode = nodes_data.Nodes[0];
     loadBalancer.__set__('job_queue', []);
     loadBalancer.__set__('node_queue', [testNode]);
-    console.log(loadBalancer.__get__('node_queue'));
+    //console.log(loadBalancer.__get__('node_queue'));
     request.post(`${lbUrl}/addNode`, { json: testNode }, (error,response) => {
       (error === null).should.be.true();
       response.body.should.equal(true);
       //sinon.assert.calledOnce(logStub);
       loadBalancer.node_queue = loadBalancer.__get__('node_queue');
       loadBalancer.node_queue.should.be.an('array').that.deep.includes(testNode);
-      //restoreConsole();
+      restoreConsole();
       done();
     });
   });
