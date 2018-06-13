@@ -23,18 +23,18 @@ const proxyquire = require('proxyquire');
 const { check } = require('../../../util/environmentCheck.js');
 const { Status } = require('../../status.js');
 const testData = require('./data/submission.json');
-
-check('LBCONFIG');
-// eslint-disable-next-line import/no-dynamic-require
 const nodes_data = require(`../../${process.env.LBCONFIG}`);
 const lbUrl = `https://${nodes_data.load_balancer.hostname}:${nodes_data.load_balancer.port}`;
+const sandbox = sinon.createSandbox();
+
+let loadBalancer;
+let logStub;
+
+// eslint-disable-next-line import/no-dynamic-require
+check('LBCONFIG');
+
 chai.should();
 chai.use(dirtyChai);
-let loadBalancer;
-let testStatus;
-var job_queue;
-let logStub;
-const sandbox = sinon.createSandbox();
 
 const activateNocks = function activateNocks() {
   if (!nock.isActive()) {
@@ -68,7 +68,6 @@ const startLoadBalancer = function startLoadBalancer() {
 // console.log('* TODO: ignores invalid messages from execution nodes');
 
 describe('Correctly maintains list of ENs', () => {
-
   beforeEach(() => {
     stubConsole();
     startLoadBalancer();
@@ -81,24 +80,25 @@ describe('Correctly maintains list of ENs', () => {
 
   it('during status check', (done) => {
     stubConsole();
-    let res = JSON.parse(JSON.stringify(testData.nodesData));
-    let lbTestStatus = nodes_data.load_balancer;
-    lbTestStatus.status = "up";
-    //proxyquire('./../../load_balancer.js', { 'status': testStatus});
+    let testStatus;
+    const res = JSON.parse(JSON.stringify(testData.nodesData));
+    const lbTestStatus = nodes_data.load_balancer;
+    lbTestStatus.status = 'up';
+    // proxyquire('./../../load_balancer.js', { 'status': testStatus});
     testStatus = new Status(res);
-    loadBalancer.__set__('status',testStatus);    
+    loadBalancer.__set__('status', testStatus);    
     sandbox.stub(testStatus, 'checkStatus').callsFake(() => {
       var result = {};
       result.components = JSON.parse(JSON.stringify(res));
       result.components.forEach((elem) => {
-        elem.status = "down";
+        elem.status = 'down';
       });
       return result;
     });
     request.get(`${lbUrl}/connectionCheck`, (error, response) => {
-      let responseBody = JSON.parse(response.body);
+      const responseBody = JSON.parse(response.body);
       response.should.exist();
-      responseBody.should.have.all.keys("components","job_queue_length","timestamp");
+      responseBody.should.have.all.keys('components', 'job_queue_length', 'timestamp');
       responseBody.job_queue_length.should.equal(loadBalancer.job_queue.length);
       responseBody.timestamp.should.be.a('string');
       responseBody.components.should.be.an('array');
@@ -113,26 +113,24 @@ describe('Correctly maintains list of ENs', () => {
 // console.log('* TODO: verifies the authenticity of each execution node before adding it to the worker pool');
 // console.log('* TODO: verifies the origins of each evaluation result');
 describe('/addNode works correctly', () => {
-
   const checkAddNode = function checkAddNode(testNodeQueue, resp) {
     stubConsole();
-    let testNode = nodes_data.Nodes[0];
+    const testNode = nodes_data.Nodes[0];
+    let testJobQueue;
+    let updatedNodeQueue;
     setTimeout(() => {
-      let testJobQueue = JSON.parse(JSON.stringify(loadBalancer.__get__('job_queue')));
+      testJobQueue = JSON.parse(JSON.stringify(loadBalancer.__get__('job_queue')));
       loadBalancer.__set__('node_queue', JSON.parse(JSON.stringify(testNodeQueue)));
-      request.post(`${lbUrl}/addNode`, { json: testNode }, (error,response) => {
+      request.post(`${lbUrl}/addNode`, { json: testNode }, (error, response) => {
         (error === null).should.be.true();
         response.body.should.equal(true);
         updatedNodeQueue = loadBalancer.__get__('node_queue');
-        if(testJobQueue.length === 0) {
+        if (testJobQueue.length === 0) {
           updatedNodeQueue.should.be.an('array').that.deep.includes(testNode);
-          if(testNodeQueue.length === 0)      //EN just started and no job
+          if (testNodeQueue.length === 0)     // EN just started and no job
             sinon.assert.calledThrice(logStub);
-          else                                //EN already in node queue and no job
+          else                                // EN already in node queue and no job
             sinon.assert.calledOnce(logStub);
-        }
-        else {                                //job pending
-          //do nothing
         }
         restoreConsole();
         resp();
@@ -152,14 +150,14 @@ describe('/addNode works correctly', () => {
     loadBalancer.server.close(done);
   });
 
-  it('when EN has just started and no job', (done) => {    
+  it('when EN has just started and no job', (done) => {
     loadBalancer.__set__('job_queue', []);
     checkAddNode([], () => {
       done();
     });
   });
 
-  it('when EN is already in node queue and no job', (done) => {    
+  it('when EN is already in node queue and no job', (done) => {
     loadBalancer.__set__('job_queue', []);
     checkAddNode(testData.nodesData, () => {
       done();
@@ -168,13 +166,13 @@ describe('/addNode works correctly', () => {
 
   it('when a job is pending', (done) => {
     const enUrl = `https://${nodes_data.Nodes[0].hostname}:${nodes_data.Nodes[0].port}`;
-    let testJobQueue = JSON.parse(JSON.stringify(testData.submissionsData));
+    const testJobQueue = JSON.parse(JSON.stringify(testData.submissionsData));
     let testJobQueueSetter = JSON.parse(JSON.stringify(testJobQueue));
-    loadBalancer.__set__('job_queue',testJobQueueSetter);
+    loadBalancer.__set__('job_queue', testJobQueueSetter);
     nock(enUrl)
       .post('/requestRun')
       .reply(200, (uri, requestBody) => {
-        requestBody.should.have.all.keys('id_no','Lab_No','time','commit','status','penalty','socket','language');
+        requestBody.should.have.all.keys('id_no', 'Lab_No', 'time', 'commit', 'status', 'penalty', 'socket', 'language');
         requestBody.should.deep.equal(testJobQueue[2]);
         testJobQueue.pop();
         testJobQueueSetter.should.deep.equal(testJobQueue);
@@ -191,11 +189,12 @@ describe('/addNode works correctly', () => {
       role: 'execution_node',
       hostname: 'localhost',
       port: '8087',
-    }
+    };
+    let testJobQueue = JSON.parse(JSON.stringify(testData.submissionsData));
     stubConsole();
     setTimeout(() => {
       loadBalancer.__set__('node_queue', JSON.parse(JSON.stringify([])));
-      loadBalancer.__set__('job_queue', JSON.parse(JSON.stringify(testData.submissionsData)));
+      loadBalancer.__set__('job_queue', testJobQueue);
       request.post(`${lbUrl}/addNode`, { json: wrongNode });
     }, 50);
     setTimeout(() => {
@@ -205,10 +204,69 @@ describe('/addNode works correctly', () => {
       done();
     }, 100);
   });
-
 });
 
+describe('/submit works correctly', () => {
+  beforeEach(() => {
+    stubConsole();
+    startLoadBalancer();
+    restoreConsole();
+    activateNocks();
+  });
 
+  afterEach((done) => {
+    cleanNocks();
+    loadBalancer.server.close(done);
+  });
+
+  it('when no node available to process request', (done) => {
+    stubConsole();
+    let testJobQueue = JSON.parse(JSON.stringify(testData.submissionsData));
+    const newJob = testJobQueue.pop();
+    setTimeout(() => {
+      loadBalancer.__set__('job_queue', testJobQueue);
+      loadBalancer.__set__('node_queue', JSON.parse(JSON.stringify([])));
+      request.post(`${lbUrl}/submit`, { json: newJob }, (error, response) => {
+        (error === null).should.be.true;
+        response.body.should.equal(true);
+        loadBalancer.__get__('node_queue').should.be.an('array').that.is.empty;
+        loadBalancer.__get__('job_queue').should.deep.equal(testData.submissionsData);
+        restoreConsole();
+        done();
+      });
+    }, 50);
+  });
+
+  it('when node is available to process request', (done) => {
+    stubConsole();
+    let testJobQueue = JSON.parse(JSON.stringify(testData.submissionsData));
+    let testNodeQueue = JSON.parse(JSON.stringify(testData.nodesData));
+    const assignedNode = testNodeQueue[1];
+    const newJob = testJobQueue[2];
+    const enUrl = `https://${assignedNode.hostname}:${assignedNode.port}`;
+    nock(enUrl)
+      .post('/requestRun')
+      .reply(200, (uri, requestBody) => {
+        requestBody.should.have.all.keys('id_no', 'Lab_No', 'time', 'commit', 'status', 'penalty', 'socket', 'language');
+        requestBody.should.deep.equal(newJob);
+        return true;
+      });
+    setTimeout(() => {
+      testJobQueue.pop();
+      loadBalancer.__set__('job_queue', testJobQueue);
+      loadBalancer.__set__('node_queue', JSON.parse(JSON.stringify(testNodeQueue)));
+      testNodeQueue.pop();
+      request.post(`${lbUrl}/submit`, { json: newJob }, (error, response) => {
+        (error === null).should.be.true;
+        response.body.should.equal(true);
+        loadBalancer.__get__('node_queue').should.deep.equal(testNodeQueue);
+        loadBalancer.__get__('job_queue').should.deep.equal(testJobQueue);
+        restoreConsole();
+        done();
+      });
+    }, 50);
+  });
+});
 
 // console.log('* TODO: Remains online and active when database is offline');
 // console.log('* TODO: Connects to database when database comes back online');
