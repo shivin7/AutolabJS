@@ -19,6 +19,7 @@ const request = require('request');
 const nock = require('nock');
 const sinon = require('sinon');
 const rewire = require('rewire');
+const proxyquire = require('proxyquire');
 const { check } = require('../../../util/environmentCheck.js');
 const { Status } = require('../../status.js');
 const testData = require('./data/submission.json');
@@ -66,7 +67,7 @@ const startLoadBalancer = function startLoadBalancer() {
 // console.log('* TODO: correctly maintains the list of execution nodes during errors in neighbouring components');
 // console.log('* TODO: ignores invalid messages from execution nodes');
 
-/*describe('Correctly maintains list of ENs', () => {
+describe('Correctly maintains list of ENs', () => {
   beforeEach(() => {
     stubConsole();
     startLoadBalancer();
@@ -79,14 +80,10 @@ const startLoadBalancer = function startLoadBalancer() {
 
   it('during status check', (done) => {
     stubConsole();
-    let testStatus;
-    const res = JSON.parse(JSON.stringify(testData.nodesData));
+    const res = JSON.parse(JSON.stringify(nodes_data.Nodes));
     const lbTestStatus = nodes_data.load_balancer;
-    lbTestStatus.status = 'up';
-    // proxyquire('./../../load_balancer.js', { 'status': testStatus});
-    testStatus = new Status(res);
-    loadBalancer.__set__('status', testStatus);    
-    sandbox.stub(testStatus, 'checkStatus').callsFake(() => {
+    lbTestStatus.status = 'up';   
+    sandbox.stub(loadBalancer.__get__('status'), 'checkStatus').callsFake(() => {
       var result = {};
       result.components = JSON.parse(JSON.stringify(res));
       result.components.forEach((elem) => {
@@ -106,7 +103,7 @@ const startLoadBalancer = function startLoadBalancer() {
       done();
     });
   });
-});*/
+});
 
 // console.log('* TODO: correctly handles results json with large logs of 50000 lines');
 // console.log('* TODO: verifies the authenticity of each execution node before adding it to the worker pool');
