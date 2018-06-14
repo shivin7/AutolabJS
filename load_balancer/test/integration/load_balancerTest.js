@@ -66,11 +66,11 @@ const startLoadBalancer = function startLoadBalancer() {
 // console.log('* TODO: correctly maintains the list of execution nodes during errors in neighbouring components');
 // console.log('* TODO: ignores invalid messages from execution nodes');
 
-describe('Correctly maintains list of ENs', () => {
+/*describe('Correctly maintains list of ENs', () => {
   beforeEach(() => {
-    //stubConsole();
+    stubConsole();
     startLoadBalancer();
-    //restoreConsole();
+    restoreConsole();
   });
 
   afterEach((done) => {
@@ -78,7 +78,7 @@ describe('Correctly maintains list of ENs', () => {
   });
 
   it('during status check', (done) => {
-    //stubConsole();
+    stubConsole();
     let testStatus;
     const res = JSON.parse(JSON.stringify(testData.nodesData));
     const lbTestStatus = nodes_data.load_balancer;
@@ -102,11 +102,11 @@ describe('Correctly maintains list of ENs', () => {
       responseBody.timestamp.should.be.a('string');
       responseBody.components.should.be.an('array');
       responseBody.components.should.deep.include(lbTestStatus);
-      //restoreConsole();
+      restoreConsole();
       done();
     });
   });
-});
+});*/
 
 // console.log('* TODO: correctly handles results json with large logs of 50000 lines');
 // console.log('* TODO: verifies the authenticity of each execution node before adding it to the worker pool');
