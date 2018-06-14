@@ -80,14 +80,10 @@ describe('Correctly maintains list of ENs', () => {
 
   it('during status check', (done) => {
     stubConsole();
-    let testStatus;
-    const res = JSON.parse(JSON.stringify(testData.nodesData));
+    const res = JSON.parse(JSON.stringify(nodes_data.Nodes));
     const lbTestStatus = nodes_data.load_balancer;
-    lbTestStatus.status = 'up';
-    // proxyquire('./../../load_balancer.js', { 'status': testStatus});
-    testStatus = new Status(res);
-    loadBalancer.__set__('status', testStatus);    
-    sandbox.stub(testStatus, 'checkStatus').callsFake(() => {
+    lbTestStatus.status = 'up';   
+    sandbox.stub(loadBalancer.__get__('status'), 'checkStatus').callsFake(() => {
       var result = {};
       result.components = JSON.parse(JSON.stringify(res));
       result.components.forEach((elem) => {
