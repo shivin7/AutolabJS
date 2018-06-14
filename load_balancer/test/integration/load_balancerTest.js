@@ -68,9 +68,9 @@ const startLoadBalancer = function startLoadBalancer() {
 
 describe('Correctly maintains list of ENs', () => {
   beforeEach(() => {
-    stubConsole();
+    //stubConsole();
     startLoadBalancer();
-    restoreConsole();
+    //restoreConsole();
   });
 
   afterEach((done) => {
@@ -78,7 +78,7 @@ describe('Correctly maintains list of ENs', () => {
   });
 
   it('during status check', (done) => {
-    stubConsole();
+    //stubConsole();
     let testStatus;
     const res = JSON.parse(JSON.stringify(testData.nodesData));
     const lbTestStatus = nodes_data.load_balancer;
@@ -102,7 +102,7 @@ describe('Correctly maintains list of ENs', () => {
       responseBody.timestamp.should.be.a('string');
       responseBody.components.should.be.an('array');
       responseBody.components.should.deep.include(lbTestStatus);
-      restoreConsole();
+      //restoreConsole();
       done();
     });
   });
