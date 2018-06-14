@@ -19,7 +19,6 @@ const request = require('request');
 const nock = require('nock');
 const sinon = require('sinon');
 const rewire = require('rewire');
-const proxyquire = require('proxyquire');
 const { check } = require('../../../util/environmentCheck.js');
 const { Status } = require('../../status.js');
 const testData = require('./data/submission.json');
