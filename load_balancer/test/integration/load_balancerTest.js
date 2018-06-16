@@ -20,7 +20,6 @@ const nock = require('nock');
 const dns = require('dns');
 const sinon = require('sinon');
 const rewire = require('rewire');
-const proxyquire = require('proxyquire');
 const { check } = require('../../../util/environmentCheck.js');
 const { Status } = require('../../status.js');
 const testData = require('./data/submission.json');
@@ -55,12 +54,6 @@ const stubConsole = function stubConsole() {
 const restoreConsole = function restoreConsole() {
   logStub = {};
   sandbox.restore();
-};
-
-const startExecutionNode = function startExecutionNode() {
-  delete require.cache[require.resolve('../../../exeution_nodes/execute_node.js')];
-  // eslint-disable-next-line global-require
-  executeNode = require('../../../execution_nodes/execute_node.js');
 };
 
 const startLoadBalancer = function startLoadBalancer() {
