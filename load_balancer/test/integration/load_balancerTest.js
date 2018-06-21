@@ -267,7 +267,7 @@ describe('Correctly accepts executed job results', () => {
       requestBody.marks.should.be.an('array');
       requestBody.comment.should.be.an('array');
       requestBody.should.deep.equal(execSubmissionObj.submission_details);
-      return 'true';
+      return true;
     });
     setTimeout(() => {
       request.post(`${lbUrl}/sendScores`, { json: execSubmissionObj }, (error, response) => {
