@@ -204,12 +204,13 @@ describe('Correctly maintains list of ENs', () => {
     });
   });
 
-  /* it('when MySQL database is down', (done) => {
+  it('when MySQL database is down', (done) => {
     stubConsole();
     loadBalancer.server.close();
     process.env.LBCONFIG = './test/functional/data/wrongConf.json';
     try {
       startLoadBalancer();
+      console.log('Yes')
     } catch (err) {
       console.log('Error caught', err);
     }
@@ -218,10 +219,10 @@ describe('Correctly maintains list of ENs', () => {
       process.env.LBCONFIG = '../deploy/configs/load_balancer/nodes_data_conf.json';
       restoreConsole();
       done();
-    }, 200);
-  }); */
+    }, 100);
+  });
 });
-
+/*
 describe('Correctly adds a newly started node', () => {
   beforeEach(() => {
     stubConsole();
@@ -446,4 +447,4 @@ describe('Submits a job and receives result correctly', () => {
     });
   });
 });
-
+*/
